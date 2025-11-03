@@ -169,29 +169,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Middleware para normalizar rotas sem /api (compatibilidade)
-// Ex: /auth/login → /api/auth/login
-app.use((req, res, next) => {
-  // Lista de caminhos que devem ter /api
-  const apiPaths = ['/auth', '/products', '/clients', '/sales', '/materials', '/material-purchases'];
-  
-  // Se a rota começa com um desses caminhos mas não tem /api, adiciona /api
-  const needsApi = apiPaths.some(path => req.path.startsWith(path) && !req.path.startsWith('/api'));
-  
-  if (needsApi) {
-    const newPath = '/api' + req.path;
-    console.log(`🔄 Normalizando rota: ${req.method} ${req.path} → ${newPath}`);
-    // Para métodos que não sejam GET/HEAD, precisamos manter o body
-    if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
-      // Apenas atualiza o path, mantendo o body
-      req.url = newPath + (req.url.includes('?') ? req.url.substring(req.path.length) : '');
-    } else {
-      req.url = newPath + (req.url.includes('?') ? req.url.substring(req.path.length) : '');
-    }
-    req.path = newPath;
-  }
-  next();
-});
 
 // Middlewares de segurança (após CORS)
 app.use(setupHelmet);
@@ -255,18 +232,29 @@ app.get('/api/health', (req, res) => {
 
 // Middleware de erro global
 app.use(async (err, req, res, next) => {
-  // Aplicar CORS no erro também
+  // Aplicar CORS no erro também (incluindo hardcode do Netlify)
   const origin = req.headers.origin;
   const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
     process.env.FRONTEND_URL,
+    'https://controls-finance-app-v001.netlify.app', // Hardcoded
   ].filter(Boolean);
   
-  if (origin && (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development')) {
+  if (origin && (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development' || origin === 'https://controls-finance-app-v001.netlify.app')) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
+  
+  // Log detalhado do erro
+  console.error('❌ ERRO:', {
+    method: req.method,
+    path: req.path,
+    originalUrl: req.originalUrl,
+    message: err.message,
+    status: err.status || 500,
+    stack: process.env.VERCEL === '1' ? err.stack : undefined, // Log stack no Vercel para debug
+  });
   
   // Log seguro de erros
   try {
@@ -278,8 +266,8 @@ app.use(async (err, req, res, next) => {
     });
   } catch (logError) {
     // Se falhar o log, apenas logar erro básico
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Erro:', err);
+    if (process.env.NODE_ENV === 'development' || process.env.VERCEL === '1') {
+      console.error('Erro completo:', err);
     }
   }
 
