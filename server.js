@@ -138,31 +138,41 @@ const corsOptions = {
 app.use((req, res, next) => {
   if (req.method === 'OPTIONS') {
     const origin = req.headers.origin;
-    const allowedOrigins = [
-      'http://localhost:5173',
-      'http://localhost:3000',
-      process.env.FRONTEND_URL,
-    ].filter(Boolean);
     
-    // Função para verificar se é domínio Netlify
+    // Função para verificar se é domínio Netlify (qualquer subdomínio .netlify.app)
     const isNetlifyDomain = (origin) => {
       if (!origin) return false;
-      return origin.endsWith('.netlify.app') || origin === 'https://controls-finance-app-v001.netlify.app';
+      return typeof origin === 'string' && origin.includes('.netlify.app');
     };
     
-    // Permitir se estiver na lista OU se for desenvolvimento OU se for domínio Netlify
-    const shouldAllow = !origin || 
-      allowedOrigins.includes(origin) || 
+    // Sempre permitir se:
+    // 1. É desenvolvimento OU
+    // 2. É domínio Netlify OU
+    // 3. Está na lista de origens permitidas OU
+    // 4. Não tem origin (alguns clientes não enviam)
+    const shouldAllow = 
       process.env.NODE_ENV === 'development' ||
-      isNetlifyDomain(origin);
+      !origin ||
+      isNetlifyDomain(origin) ||
+      origin === 'http://localhost:5173' ||
+      origin === 'http://localhost:3000' ||
+      origin === process.env.FRONTEND_URL;
     
-    if (shouldAllow && origin) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    if (shouldAllow) {
+      // Se tem origin, usar ele. Se não tem, usar * (mas não funciona com credentials)
+      if (origin) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      } else {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+      }
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
       res.setHeader('Access-Control-Max-Age', '86400'); // 24 horas
+      console.log(`✅ OPTIONS permitido para: ${origin || 'sem origin'}`);
       return res.status(200).end();
+    } else {
+      console.warn(`⚠️ OPTIONS bloqueado para: ${origin}`);
     }
   }
   next();
@@ -301,13 +311,18 @@ app.use((req, res) => {
   
   // Aplicar CORS manualmente na resposta 404
   const origin = req.headers.origin;
-  const allowedOrigins = [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    process.env.FRONTEND_URL,
-  ].filter(Boolean);
+  const isNetlifyDomain = (origin) => {
+    if (!origin) return false;
+    return typeof origin === 'string' && origin.includes('.netlify.app');
+  };
   
-  if (origin && (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development')) {
+  if (origin && (
+    origin === 'http://localhost:5173' ||
+    origin === 'http://localhost:3000' ||
+    origin === process.env.FRONTEND_URL ||
+    process.env.NODE_ENV === 'development' ||
+    isNetlifyDomain(origin)
+  )) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
