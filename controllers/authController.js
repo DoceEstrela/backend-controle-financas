@@ -233,6 +233,13 @@ export const getMe = async (req, res) => {
 // @access  Public
 export const createFirstAdmin = async (req, res) => {
   try {
+    // Garantir conexão com MongoDB antes de processar
+    const mongoose = await import('mongoose');
+    if (mongoose.default.connection.readyState !== 1) {
+      const connectDB = (await import('../config/database.js')).default;
+      await connectDB();
+    }
+    
     // Verificar se já existe algum admin
     const existingAdmin = await User.findOne({ role: 'admin' });
     
@@ -350,10 +357,19 @@ export const createFirstAdmin = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error('❌ Erro em createFirstAdmin:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+    });
+    
     res.status(500).json({
       success: false,
       message: 'Erro ao criar administrador',
-      error: error.message,
+      error: process.env.NODE_ENV === 'development' || process.env.VERCEL === '1' 
+        ? error.message 
+        : 'Erro interno do servidor',
+      ...(process.env.NODE_ENV === 'development' && { stack: error.stack }),
     });
   }
 };
