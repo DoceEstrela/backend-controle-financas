@@ -85,6 +85,13 @@ const allowedOrigins = [
   process.env.FRONTEND_URL, // URL de produção do Netlify
 ].filter(Boolean); // Remove valores undefined/null
 
+// Função para verificar se é um domínio Netlify
+const isNetlifyDomain = (origin) => {
+  if (!origin) return false;
+  // Aceita qualquer subdomínio .netlify.app (deploys, previews, etc)
+  return origin.endsWith('.netlify.app') || origin === 'https://controls-finance-app-v001.netlify.app';
+};
+
 // Log das origens permitidas (apenas em produção para debug)
 if (process.env.VERCEL === '1' || process.env.NODE_ENV === 'production') {
   console.log('🌐 CORS configurado. Origens permitidas:', allowedOrigins);
@@ -100,8 +107,8 @@ const corsOptions = {
       return callback(null, true);
     }
     
-    // Hardcode temporário da URL do Netlify para garantir funcionamento
-    if (origin === 'https://controls-finance-app-v001.netlify.app') {
+    // Aceita qualquer domínio Netlify (deploys, previews, produção)
+    if (isNetlifyDomain(origin)) {
       return callback(null, true);
     }
     
@@ -135,14 +142,19 @@ app.use((req, res, next) => {
       'http://localhost:5173',
       'http://localhost:3000',
       process.env.FRONTEND_URL,
-      'https://controls-finance-app-v001.netlify.app', // Hardcoded temporariamente para garantir funcionamento
     ].filter(Boolean);
     
-    // Permitir se estiver na lista OU se for desenvolvimento OU se for a URL do Netlify conhecida
+    // Função para verificar se é domínio Netlify
+    const isNetlifyDomain = (origin) => {
+      if (!origin) return false;
+      return origin.endsWith('.netlify.app') || origin === 'https://controls-finance-app-v001.netlify.app';
+    };
+    
+    // Permitir se estiver na lista OU se for desenvolvimento OU se for domínio Netlify
     const shouldAllow = !origin || 
       allowedOrigins.includes(origin) || 
       process.env.NODE_ENV === 'development' ||
-      origin === 'https://controls-finance-app-v001.netlify.app';
+      isNetlifyDomain(origin);
     
     if (shouldAllow && origin) {
       res.setHeader('Access-Control-Allow-Origin', origin);
@@ -232,16 +244,21 @@ app.get('/api/health', (req, res) => {
 
 // Middleware de erro global
 app.use(async (err, req, res, next) => {
-  // Aplicar CORS no erro também (incluindo hardcode do Netlify)
+  // Aplicar CORS no erro também
   const origin = req.headers.origin;
   const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
     process.env.FRONTEND_URL,
-    'https://controls-finance-app-v001.netlify.app', // Hardcoded
   ].filter(Boolean);
   
-  if (origin && (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development' || origin === 'https://controls-finance-app-v001.netlify.app')) {
+  // Função para verificar se é domínio Netlify
+  const isNetlifyDomain = (origin) => {
+    if (!origin) return false;
+    return origin.endsWith('.netlify.app') || origin === 'https://controls-finance-app-v001.netlify.app';
+  };
+  
+  if (origin && (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development' || isNetlifyDomain(origin))) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
