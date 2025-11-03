@@ -100,6 +100,11 @@ const corsOptions = {
       return callback(null, true);
     }
     
+    // Hardcode temporário da URL do Netlify para garantir funcionamento
+    if (origin === 'https://controls-finance-app-v001.netlify.app') {
+      return callback(null, true);
+    }
+    
     // Verifica se a origem está na lista permitida
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
@@ -121,6 +126,35 @@ const corsOptions = {
   optionsSuccessStatus: 200, // Para navegadores antigos
   preflightContinue: false,
 };
+
+// Handler MUITO EXPLÍCITO para OPTIONS ANTES de tudo
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    const origin = req.headers.origin;
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      process.env.FRONTEND_URL,
+      'https://controls-finance-app-v001.netlify.app', // Hardcoded temporariamente para garantir funcionamento
+    ].filter(Boolean);
+    
+    // Permitir se estiver na lista OU se for desenvolvimento OU se for a URL do Netlify conhecida
+    const shouldAllow = !origin || 
+      allowedOrigins.includes(origin) || 
+      process.env.NODE_ENV === 'development' ||
+      origin === 'https://controls-finance-app-v001.netlify.app';
+    
+    if (shouldAllow && origin) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.setHeader('Access-Control-Max-Age', '86400'); // 24 horas
+      return res.status(200).end();
+    }
+  }
+  next();
+});
 
 app.use(cors(corsOptions));
 
@@ -221,6 +255,19 @@ app.get('/api/health', (req, res) => {
 
 // Middleware de erro global
 app.use(async (err, req, res, next) => {
+  // Aplicar CORS no erro também
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    process.env.FRONTEND_URL,
+  ].filter(Boolean);
+  
+  if (origin && (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development')) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+  
   // Log seguro de erros
   try {
     const { logError } = await import('./utils/securityLogger.js');
@@ -243,9 +290,23 @@ app.use(async (err, req, res, next) => {
   });
 });
 
-// Rota 404
+// Rota 404 - IMPORTANTE: Garantir que 404 sempre tenha CORS
 app.use((req, res) => {
   console.log(`❌ Rota não encontrada: ${req.method} ${req.path}`);
+  
+  // Aplicar CORS manualmente na resposta 404
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    process.env.FRONTEND_URL,
+  ].filter(Boolean);
+  
+  if (origin && (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development')) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+  
   res.status(404).json({
     success: false,
     message: 'Rota não encontrada',
