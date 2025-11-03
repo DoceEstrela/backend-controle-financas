@@ -96,6 +96,14 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
+// Middleware de debug (remover em produção final)
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV === 'development' || process.env.VERCEL === '1') {
+    console.log(`📥 ${req.method} ${req.path} - Query:`, req.query);
+  }
+  next();
+});
+
 // Rate limiting - aplicar antes das rotas específicas
 // Rotas de autenticação terão rate limiting mais flexível
 app.use('/api/auth/me', authLimiter);
@@ -110,6 +118,25 @@ app.use('/api/clients', clientRoutes);
 app.use('/api/sales', saleRoutes);
 app.use('/api/materials', materialRoutes);
 app.use('/api/material-purchases', materialPurchaseRoutes);
+
+// Rota raiz para verificar se está funcionando
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'API Backend - Sistema de Controle de Finanças',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth',
+      products: '/api/products',
+      clients: '/api/clients',
+      sales: '/api/sales',
+      materials: '/api/materials',
+      materialPurchases: '/api/material-purchases',
+    },
+    timestamp: new Date().toISOString(),
+  });
+});
 
 // Rota de teste
 app.get('/api/health', (req, res) => {
@@ -146,9 +173,23 @@ app.use(async (err, req, res, next) => {
 
 // Rota 404
 app.use((req, res) => {
+  console.log(`❌ Rota não encontrada: ${req.method} ${req.path}`);
   res.status(404).json({
     success: false,
     message: 'Rota não encontrada',
+    path: req.path,
+    method: req.method,
+    availableRoutes: [
+      'GET /',
+      'GET /api/health',
+      'POST /api/auth/login',
+      'POST /api/auth/register',
+      'GET /api/products',
+      'GET /api/clients',
+      'GET /api/sales',
+      'GET /api/materials',
+      'GET /api/material-purchases',
+    ],
   });
 });
 
