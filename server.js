@@ -124,10 +124,37 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Handler explícito para OPTIONS (preflight) - garante que sempre retorne CORS
+app.options('*', cors(corsOptions));
+
 // Log de requisições CORS para debug (apenas em produção no Vercel)
 app.use((req, res, next) => {
   if (process.env.VERCEL === '1' && req.method === 'OPTIONS') {
     console.log(`🔍 Preflight OPTIONS: ${req.headers.origin} → ${req.path}`);
+  }
+  next();
+});
+
+// Middleware para normalizar rotas sem /api (compatibilidade)
+// Ex: /auth/login → /api/auth/login
+app.use((req, res, next) => {
+  // Lista de caminhos que devem ter /api
+  const apiPaths = ['/auth', '/products', '/clients', '/sales', '/materials', '/material-purchases'];
+  
+  // Se a rota começa com um desses caminhos mas não tem /api, adiciona /api
+  const needsApi = apiPaths.some(path => req.path.startsWith(path) && !req.path.startsWith('/api'));
+  
+  if (needsApi) {
+    const newPath = '/api' + req.path;
+    console.log(`🔄 Normalizando rota: ${req.method} ${req.path} → ${newPath}`);
+    // Para métodos que não sejam GET/HEAD, precisamos manter o body
+    if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
+      // Apenas atualiza o path, mantendo o body
+      req.url = newPath + (req.url.includes('?') ? req.url.substring(req.path.length) : '');
+    } else {
+      req.url = newPath + (req.url.includes('?') ? req.url.substring(req.path.length) : '');
+    }
+    req.path = newPath;
   }
   next();
 });
