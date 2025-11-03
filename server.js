@@ -77,17 +77,21 @@ connectDB().catch(err => {
 // Inicializar Express
 const app = express();
 
-// Middlewares de segurança
-app.use(setupHelmet);
-app.use(sanitizeInput);
-
-// CORS configurado
+// CORS DEVE SER O PRIMEIRO MIDDLEWARE - antes de qualquer outro
 // Permite múltiplas origens para desenvolvimento e produção
 const allowedOrigins = [
   'http://localhost:5173', // Desenvolvimento local
   'http://localhost:3000', // Alternativa local
   process.env.FRONTEND_URL, // URL de produção do Netlify
 ].filter(Boolean); // Remove valores undefined/null
+
+// Log das origens permitidas (apenas em produção para debug)
+if (process.env.VERCEL === '1' || process.env.NODE_ENV === 'production') {
+  console.log('🌐 CORS configurado. Origens permitidas:', allowedOrigins);
+  if (!process.env.FRONTEND_URL) {
+    console.warn('⚠️ AVISO: FRONTEND_URL não está configurada. Configure no Vercel para produção!');
+  }
+}
 
 const corsOptions = {
   origin: (origin, callback) => {
@@ -111,11 +115,26 @@ const corsOptions = {
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  optionsSuccessStatus: 200, // Para navegadores antigos
+  preflightContinue: false,
 };
 
 app.use(cors(corsOptions));
+
+// Log de requisições CORS para debug (apenas em produção no Vercel)
+app.use((req, res, next) => {
+  if (process.env.VERCEL === '1' && req.method === 'OPTIONS') {
+    console.log(`🔍 Preflight OPTIONS: ${req.headers.origin} → ${req.path}`);
+  }
+  next();
+});
+
+// Middlewares de segurança (após CORS)
+app.use(setupHelmet);
+app.use(sanitizeInput);
 
 // Proteção contra DoS - Limitar tamanho de payload
 app.use(express.json({ limit: '10mb' }));

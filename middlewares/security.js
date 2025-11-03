@@ -2,6 +2,8 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
 // Configurar Helmet para segurança de headers HTTP
+// crossOriginResourcePolicy e crossOriginEmbedderPolicy desabilitados 
+// pois gerenciamos CORS manualmente com o pacote cors
 export const setupHelmet = helmet({
   contentSecurityPolicy: {
     directives: {
@@ -12,6 +14,7 @@ export const setupHelmet = helmet({
     },
   },
   crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: false, // Permite que o CORS seja gerenciado pelo pacote cors
 });
 
 // Rate limiting para login
