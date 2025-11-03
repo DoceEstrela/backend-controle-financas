@@ -21,10 +21,14 @@ import materialPurchaseRoutes from './routes/materialPurchaseRoutes.js';
 // Carregar variáveis de ambiente
 dotenv.config();
 
+// Verificar se estamos no Vercel
+const isVercel = process.env.VERCEL === '1';
+const isProduction = process.env.NODE_ENV === 'production' || isVercel;
+
 // Validar variáveis de ambiente críticas ANTES de iniciar
 const requiredEnvVars = ['JWT_SECRET', 'MONGODB_URI'];
 
-if (process.env.NODE_ENV === 'production') {
+if (isProduction) {
   requiredEnvVars.push('ENCRYPTION_KEY');
 }
 
@@ -34,28 +38,41 @@ if (missingVars.length > 0) {
   console.error('❌ ERRO CRÍTICO: Variáveis de ambiente obrigatórias não configuradas:');
   missingVars.forEach(varName => console.error(`   - ${varName}`));
   console.error('\n⚠️  O servidor não será iniciado sem essas variáveis.\n');
-  process.exit(1);
+  // No Vercel, não usar process.exit() pois crasha a função serverless
+  if (!isVercel) {
+    process.exit(1);
+  }
 }
 
 // Validar força do JWT_SECRET
 if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
   console.error('⚠️  AVISO DE SEGURANÇA: JWT_SECRET deve ter no mínimo 32 caracteres para produção');
-  if (process.env.NODE_ENV === 'production') {
+  if (isProduction) {
     console.error('❌ Servidor não será iniciado em produção com JWT_SECRET fraco');
-    process.exit(1);
+    if (!isVercel) {
+      process.exit(1);
+    }
   }
 }
 
 // Validar força do ENCRYPTION_KEY em produção
-if (process.env.NODE_ENV === 'production' && process.env.ENCRYPTION_KEY) {
+if (isProduction && process.env.ENCRYPTION_KEY) {
   if (process.env.ENCRYPTION_KEY.length < 32) {
     console.error('❌ ERRO: ENCRYPTION_KEY deve ter no mínimo 32 caracteres em produção');
-    process.exit(1);
+    if (!isVercel) {
+      process.exit(1);
+    }
   }
 }
 
-// Conectar ao banco de dados
-connectDB();
+// Conectar ao banco de dados (async - não bloquear)
+connectDB().catch(err => {
+  console.error('❌ Erro ao conectar MongoDB:', err.message);
+  // No Vercel, não fazer process.exit(), apenas logar o erro
+  if (!isVercel) {
+    process.exit(1);
+  }
+});
 
 // Inicializar Express
 const app = express();
