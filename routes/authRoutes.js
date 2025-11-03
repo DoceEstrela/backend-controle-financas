@@ -23,7 +23,7 @@ router.post('/login', loginLimiter, validateLogin, login);
 router.post('/logout', protect, logout);
 router.get('/me', protect, getMe);
 router.get('/users', protect, isAdmin, getUsers);
-router.post('/create-first-admin', loginLimiter, validateRegister, createFirstAdmin);
+router.post('/create-first-admin', loginLimiter, ...validateRegister, createFirstAdmin);
 router.post('/create-user', protect, isAdmin, validateCreateUser, createUser);
 router.post('/forgot-password', resetPasswordLimiter, validateForgotPassword, forgotPassword);
 router.put('/reset-password/:resetToken', resetPasswordLimiter, validateResetPassword, resetPassword);

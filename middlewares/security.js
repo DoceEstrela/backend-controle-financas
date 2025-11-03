@@ -136,8 +136,19 @@ export const sanitizeInput = (req, res, next) => {
   };
 
   try {
+    // Campos que NÃO devem ser sanitizados agressivamente (preservar caracteres especiais)
+    const preserveFields = ['email', 'password', 'resetToken', 'verificationToken'];
+    
     if (req.body && typeof req.body === 'object') {
+      const originalBody = { ...req.body };
       req.body = sanitize(req.body);
+      
+      // Restaurar campos preservados (email, password, etc)
+      preserveFields.forEach(field => {
+        if (originalBody[field] !== undefined) {
+          req.body[field] = originalBody[field];
+        }
+      });
     }
     if (req.query && typeof req.query === 'object') {
       req.query = sanitize(req.query);
@@ -146,14 +157,19 @@ export const sanitizeInput = (req, res, next) => {
     if (req.params && typeof req.params === 'object') {
       for (const key in req.params) {
         if (typeof req.params[key] === 'string') {
+          // Preservar tokens em params
+          if (key.includes('token') || key.includes('Token')) {
+            continue; // Não sanitizar tokens
+          }
           req.params[key] = req.params[key].replace(dangerousChars, '');
         }
       }
     }
   } catch (error) {
     // Se falhar a sanitização, logar mas não bloquear
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('Aviso: Erro ao sanitizar entrada:', error.message);
+    console.error('❌ Erro ao sanitizar entrada:', error.message);
+    if (process.env.VERCEL === '1') {
+      console.error('Stack:', error.stack);
     }
   }
 

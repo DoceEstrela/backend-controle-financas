@@ -2,15 +2,26 @@ import { body, validationResult } from 'express-validator';
 
 // Middleware para tratar erros de validação
 export const handleValidationErrors = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Erros de validação',
+        errors: errors.array(),
+      });
+    }
+    next();
+  } catch (error) {
+    console.error('❌ Erro no handleValidationErrors:', error);
+    return res.status(500).json({
       success: false,
-      message: 'Erros de validação',
-      errors: errors.array(),
+      message: 'Erro ao processar validação',
+      error: process.env.NODE_ENV === 'development' || process.env.VERCEL === '1' 
+        ? error.message 
+        : 'Erro interno',
     });
   }
-  next();
 };
 
 // Validações para registro de usuário
