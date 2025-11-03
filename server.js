@@ -82,8 +82,34 @@ app.use(setupHelmet);
 app.use(sanitizeInput);
 
 // CORS configurado
+// Permite múltiplas origens para desenvolvimento e produção
+const allowedOrigins = [
+  'http://localhost:5173', // Desenvolvimento local
+  'http://localhost:3000', // Alternativa local
+  process.env.FRONTEND_URL, // URL de produção do Netlify
+].filter(Boolean); // Remove valores undefined/null
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Permite requisições sem origin (ex: mobile apps, Postman)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    // Verifica se a origem está na lista permitida
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Em desenvolvimento, permite qualquer origem (apenas para debug)
+    if (process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    
+    // Em produção, bloqueia origens não permitidas
+    console.warn(`⚠️ CORS bloqueado: Origem "${origin}" não está na lista permitida. Origens permitidas:`, allowedOrigins);
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
