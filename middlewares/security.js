@@ -32,7 +32,7 @@ export const loginLimiter = rateLimit({
 // Rate limiting geral para API (mais flexível)
 export const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // Em desenvolvimento: mais requisições
+  max: process.env.NODE_ENV === 'production' ? 100 : 10000, // Em desenvolvimento: muito mais requisições
   message: {
     success: false,
     message: 'Muitas requisições. Tente novamente mais tarde.',
@@ -40,6 +40,10 @@ export const apiLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => {
+    // Não aplicar rate limiting em desenvolvimento ou em rotas específicas
+    if (process.env.NODE_ENV === 'development') {
+      return true; // Desabilitar completamente em desenvolvimento
+    }
     // Não aplicar rate limiting em rotas de health check e auth/me
     const path = req.path || req.url;
     return path === '/health' || path === '/auth/me' || path.includes('/health') || path.includes('/auth/me');

@@ -17,6 +17,7 @@ import clientRoutes from './routes/clientRoutes.js';
 import saleRoutes from './routes/saleRoutes.js';
 import materialRoutes from './routes/materialRoutes.js';
 import materialPurchaseRoutes from './routes/materialPurchaseRoutes.js';
+import materialConsumptionRoutes from './routes/materialConsumptionRoutes.js';
 
 // Carregar variáveis de ambiente
 dotenv.config();
@@ -230,6 +231,7 @@ app.use('/api/clients', clientRoutes);
 app.use('/api/sales', saleRoutes);
 app.use('/api/materials', materialRoutes);
 app.use('/api/material-purchases', materialPurchaseRoutes);
+app.use('/api/material-consumptions', materialConsumptionRoutes);
 
 // Rota raiz para verificar se está funcionando
 app.get('/', (req, res) => {

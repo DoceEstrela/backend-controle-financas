@@ -12,6 +12,16 @@ const createTransporter = () => {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      // Configurações para melhorar entregabilidade
+      tls: {
+        // Não rejeitar certificados não autorizados (apenas se necessário)
+        // Em produção, mantenha como true se possível
+        rejectUnauthorized: process.env.SMTP_TLS_REJECT_UNAUTHORIZED !== 'false',
+      },
+      // Pool de conexões para melhor performance
+      pool: true,
+      maxConnections: 5,
+      maxMessages: 100,
     });
   }
 
@@ -56,10 +66,24 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
   try {
     const transporter = createTransporter();
     
+    // Configurar nome do remetente de forma mais profissional
+    const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@sistema-vendas.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Sistema de Vendas';
+    
     const mailOptions = {
-      from: process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@sistema-vendas.com',
+      from: `"${fromName}" <${fromEmail}>`,
+      replyTo: process.env.SMTP_REPLY_TO || fromEmail,
       to: email,
       subject: 'Redefinição de Senha - Sistema de Vendas',
+      priority: 'high',
+      // Headers para melhorar entregabilidade e evitar spam
+      headers: {
+        'X-Priority': '1',
+        'X-MSMail-Priority': 'High',
+        'Importance': 'high',
+        'List-Unsubscribe': process.env.FRONTEND_URL || 'https://guileless-jalebi-f1c07b.netlify.app',
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
       html: `
         <!DOCTYPE html>
         <html>
@@ -235,10 +259,24 @@ export const sendVerificationEmail = async (email, verificationToken) => {
   try {
     const transporter = createTransporter();
     
+    // Configurar nome do remetente de forma mais profissional
+    const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@sistema-vendas.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Sistema de Vendas';
+    
     const mailOptions = {
-      from: process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@sistema-vendas.com',
+      from: `"${fromName}" <${fromEmail}>`,
+      replyTo: process.env.SMTP_REPLY_TO || fromEmail,
       to: email,
       subject: 'Verifique seu email - Sistema de Vendas',
+      priority: 'high',
+      // Headers para melhorar entregabilidade e evitar spam
+      headers: {
+        'X-Priority': '1',
+        'X-MSMail-Priority': 'High',
+        'Importance': 'high',
+        'List-Unsubscribe': process.env.FRONTEND_URL || 'https://guileless-jalebi-f1c07b.netlify.app',
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
       html: `
         <!DOCTYPE html>
         <html>

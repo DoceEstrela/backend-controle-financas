@@ -10,16 +10,28 @@ const materialPurchaseSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Quantidade é obrigatória'],
     min: [0.01, 'Quantidade deve ser maior que zero'],
+    set: function(v) {
+      // Garantir que quantidade seja sempre arredondada para 2 casas decimais
+      return Math.round(parseFloat(v) * 100) / 100;
+    },
   },
   unitPrice: {
     type: Number,
     required: [true, 'Preço unitário é obrigatório'],
     min: [0, 'Preço não pode ser negativo'],
+    set: function(v) {
+      // Garantir que preço seja sempre arredondado para 2 casas decimais
+      return Math.round(parseFloat(v) * 100) / 100;
+    },
   },
   totalCost: {
     type: Number,
     required: true,
     min: 0,
+    set: function(v) {
+      // Garantir que total seja sempre arredondado para 2 casas decimais
+      return Math.round(parseFloat(v) * 100) / 100;
+    },
   },
   supplier: {
     type: String,

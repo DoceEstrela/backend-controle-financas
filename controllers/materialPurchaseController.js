@@ -69,26 +69,29 @@ export const createMaterialPurchase = async (req, res) => {
       });
     }
 
-    const totalCost = unitPrice * quantity;
+    // Garantir precisão nos cálculos (evitar problemas de ponto flutuante)
+    const quantityNum = parseFloat(quantity);
+    const unitPriceNum = parseFloat(unitPrice);
+    const totalCost = Math.round((quantityNum * unitPriceNum) * 100) / 100; // Arredondar para 2 casas decimais
 
     // Criar registro de compra
     const purchase = await MaterialPurchase.create({
       material,
-      quantity,
-      unitPrice,
+      quantity: quantityNum,
+      unitPrice: unitPriceNum,
       totalCost,
       supplier: supplier || materialDoc.supplier,
       purchasedBy: req.user.id,
       notes,
     });
 
-    // Atualizar estoque do material
-    materialDoc.quantityInStock += quantity;
+    // Atualizar estoque do material (garantir precisão)
+    materialDoc.quantityInStock = Math.round((materialDoc.quantityInStock + quantityNum) * 100) / 100;
     // Atualizar custo por unidade se o novo preço for diferente
-    if (unitPrice !== materialDoc.costPerUnit) {
+    if (unitPriceNum !== materialDoc.costPerUnit) {
       // Pode calcular média ponderada ou simplesmente atualizar
       // Por simplicidade, vamos atualizar o custo
-      materialDoc.costPerUnit = unitPrice;
+      materialDoc.costPerUnit = unitPriceNum;
     }
     await materialDoc.save();
 
@@ -182,6 +185,126 @@ export const getMaterialConsumptionReport = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Erro ao gerar relatório de consumo',
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Atualizar compra de material
+// @route   PUT /api/material-purchases/:id
+// @access  Private (Admin ou Vendedor)
+export const updateMaterialPurchase = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { quantity, unitPrice, supplier, notes } = req.body;
+
+    const purchase = await MaterialPurchase.findById(id).populate('material');
+
+    if (!purchase) {
+      return res.status(404).json({
+        success: false,
+        message: 'Compra não encontrada',
+      });
+    }
+
+    const materialDoc = purchase.material;
+    if (!materialDoc) {
+      return res.status(404).json({
+        success: false,
+        message: 'Material não encontrado',
+      });
+    }
+
+    // Calcular diferença de quantidade (quantidade antiga - nova)
+    const oldQuantity = purchase.quantity;
+    const newQuantity = parseFloat(quantity);
+    const unitPriceNum = parseFloat(unitPrice);
+    const quantityDifference = newQuantity - oldQuantity;
+
+    // Atualizar estoque do material (garantir precisão)
+    materialDoc.quantityInStock = Math.round((materialDoc.quantityInStock + quantityDifference) * 100) / 100;
+
+    // Atualizar custo por unidade se necessário
+    if (unitPriceNum !== purchase.unitPrice) {
+      materialDoc.costPerUnit = unitPriceNum;
+    }
+
+    await materialDoc.save();
+
+    // Atualizar registro de compra (garantir precisão)
+    const newTotalCost = Math.round((unitPriceNum * newQuantity) * 100) / 100; // Arredondar para 2 casas decimais
+    
+    purchase.quantity = newQuantity;
+    purchase.unitPrice = unitPriceNum;
+    purchase.totalCost = newTotalCost;
+    if (supplier !== undefined) purchase.supplier = supplier;
+    if (notes !== undefined) purchase.notes = notes;
+    
+    await purchase.save();
+
+    const populatedPurchase = await MaterialPurchase.findById(purchase._id)
+      .populate('material', 'name category unit')
+      .populate('purchasedBy', 'name email');
+
+    res.json({
+      success: true,
+      message: 'Compra atualizada com sucesso',
+      data: { purchase: populatedPurchase },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao atualizar compra de material',
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Deletar compra de material
+// @route   DELETE /api/material-purchases/:id
+// @access  Private (Admin)
+export const deleteMaterialPurchase = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const purchase = await MaterialPurchase.findById(id).populate('material');
+
+    if (!purchase) {
+      return res.status(404).json({
+        success: false,
+        message: 'Compra não encontrada',
+      });
+    }
+
+    const materialDoc = purchase.material;
+    if (!materialDoc) {
+      return res.status(404).json({
+        success: false,
+        message: 'Material não encontrado',
+      });
+    }
+
+    // Reverter estoque (remover quantidade da compra)
+    materialDoc.quantityInStock -= purchase.quantity;
+    
+    // Garantir que estoque não fique negativo
+    if (materialDoc.quantityInStock < 0) {
+      materialDoc.quantityInStock = 0;
+    }
+
+    await materialDoc.save();
+
+    // Deletar registro de compra
+    await MaterialPurchase.findByIdAndDelete(id);
+
+    res.json({
+      success: true,
+      message: 'Compra deletada com sucesso. Estoque foi ajustado.',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao deletar compra de material',
       error: error.message,
     });
   }
