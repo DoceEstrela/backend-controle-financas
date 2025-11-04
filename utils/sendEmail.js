@@ -32,18 +32,11 @@ const createTransporter = () => {
 
 // Enviar email de reset de senha
 export const sendPasswordResetEmail = async (email, resetToken) => {
-  // Determinar URL do frontend corretamente
-  let frontendUrl = process.env.FRONTEND_URL;
-  
-  // Se não estiver configurada, tentar detectar do ambiente
-  if (!frontendUrl || frontendUrl === 'http://localhost:5173') {
-    // Em produção no Vercel, usar URL conhecida do Netlify
-    if (process.env.VERCEL === '1' || process.env.NODE_ENV === 'production') {
-      frontendUrl = 'https://controls-finance-app-v001.netlify.app';
-    } else {
-      frontendUrl = 'http://localhost:5173';
-    }
-  }
+  // Usar FRONTEND_URL se configurada, senão usar fallback baseado no ambiente
+  const frontendUrl = process.env.FRONTEND_URL || 
+    (process.env.VERCEL === '1' || process.env.NODE_ENV === 'production' 
+      ? 'https://controls-finance-app-v001.netlify.app' 
+      : 'http://localhost:5173');
   
   const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
   
@@ -218,18 +211,11 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
 
 // Enviar email de verificação
 export const sendVerificationEmail = async (email, verificationToken) => {
-  // Determinar URL do frontend corretamente
-  let frontendUrl = process.env.FRONTEND_URL;
-  
-  // Se não estiver configurada, tentar detectar do ambiente
-  if (!frontendUrl || frontendUrl === 'http://localhost:5173') {
-    // Em produção no Vercel, usar URL conhecida do Netlify
-    if (process.env.VERCEL === '1' || process.env.NODE_ENV === 'production') {
-      frontendUrl = 'https://controls-finance-app-v001.netlify.app';
-    } else {
-      frontendUrl = 'http://localhost:5173';
-    }
-  }
+  // Usar FRONTEND_URL se configurada, senão usar fallback baseado no ambiente
+  const frontendUrl = process.env.FRONTEND_URL || 
+    (process.env.VERCEL === '1' || process.env.NODE_ENV === 'production' 
+      ? 'https://controls-finance-app-v001.netlify.app' 
+      : 'http://localhost:5173');
   
   const verificationUrl = `${frontendUrl}/verify-email/${verificationToken}`;
   
