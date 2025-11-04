@@ -20,8 +20,9 @@ const connectDB = async () => {
     // Opções de conexão otimizadas para serverless
     const conn = await mongoose.connect(mongoUri, {
       maxPoolSize: 10, // Manter conexões de pool reduzidas para serverless
-      serverSelectionTimeoutMS: 5000, // Timeout de 5 segundos
+      serverSelectionTimeoutMS: 10000, // Timeout aumentado para 10 segundos
       socketTimeoutMS: 45000, // Timeout de socket
+      connectTimeoutMS: 10000, // Timeout de conexão
     });
 
     console.log(`✅ MongoDB conectado: ${conn.connection.host}`);

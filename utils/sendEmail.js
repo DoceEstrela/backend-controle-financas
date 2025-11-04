@@ -32,7 +32,22 @@ const createTransporter = () => {
 
 // Enviar email de reset de senha
 export const sendPasswordResetEmail = async (email, resetToken) => {
-  const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+  // Determinar URL do frontend corretamente
+  let frontendUrl = process.env.FRONTEND_URL;
+  
+  // Se não estiver configurada, tentar detectar do ambiente
+  if (!frontendUrl || frontendUrl === 'http://localhost:5173') {
+    // Em produção no Vercel, usar URL conhecida do Netlify
+    if (process.env.VERCEL === '1' || process.env.NODE_ENV === 'production') {
+      frontendUrl = 'https://controls-finance-app-v001.netlify.app';
+    } else {
+      frontendUrl = 'http://localhost:5173';
+    }
+  }
+  
+  const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
+  
+  console.log('🔗 Link de reset gerado:', resetUrl);
   
   // Verificar se SMTP está configurado
   const hasSmtpConfig = process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS;
@@ -203,7 +218,22 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
 
 // Enviar email de verificação
 export const sendVerificationEmail = async (email, verificationToken) => {
-  const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email/${verificationToken}`;
+  // Determinar URL do frontend corretamente
+  let frontendUrl = process.env.FRONTEND_URL;
+  
+  // Se não estiver configurada, tentar detectar do ambiente
+  if (!frontendUrl || frontendUrl === 'http://localhost:5173') {
+    // Em produção no Vercel, usar URL conhecida do Netlify
+    if (process.env.VERCEL === '1' || process.env.NODE_ENV === 'production') {
+      frontendUrl = 'https://controls-finance-app-v001.netlify.app';
+    } else {
+      frontendUrl = 'http://localhost:5173';
+    }
+  }
+  
+  const verificationUrl = `${frontendUrl}/verify-email/${verificationToken}`;
+  
+  console.log('🔗 Link de verificação gerado:', verificationUrl);
   
   // Verificar se SMTP está configurado
   const hasSmtpConfig = process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS;

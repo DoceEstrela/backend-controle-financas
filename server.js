@@ -77,6 +77,10 @@ connectDB().catch(err => {
 // Inicializar Express
 const app = express();
 
+// IMPORTANTE: Configurar trust proxy para Vercel (serverless)
+// Necessário para express-rate-limit funcionar corretamente
+app.set('trust proxy', 1);
+
 // CORS DEVE SER O PRIMEIRO MIDDLEWARE - antes de qualquer outro
 // Permite múltiplas origens para desenvolvimento e produção
 const allowedOrigins = [
