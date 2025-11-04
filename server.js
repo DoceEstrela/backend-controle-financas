@@ -317,10 +317,10 @@ app.use(async (err, req, res, next) => {
   ].filter(Boolean);
   
   // Função para verificar se é domínio Netlify
-  const isNetlifyDomain = (origin) => {
-    if (!origin) return false;
-    return origin.endsWith('.netlify.app') || origin === 'https://controls-finance-app-v001.netlify.app';
-  };
+        const isNetlifyDomain = (origin) => {
+          if (!origin) return false;
+          return origin.endsWith('.netlify.app');
+        };
   
   if (origin && (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development' || isNetlifyDomain(origin))) {
     res.setHeader('Access-Control-Allow-Origin', origin);
