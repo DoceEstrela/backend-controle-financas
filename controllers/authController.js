@@ -233,14 +233,25 @@ export const getMe = async (req, res) => {
 // @access  Public
 export const createFirstAdmin = async (req, res) => {
   try {
+    console.log('📝 createFirstAdmin chamado:', {
+      body: { ...req.body, password: '***' }, // Não logar senha
+      hasBody: !!req.body,
+      bodyKeys: req.body ? Object.keys(req.body) : [],
+    });
+    
     // Garantir conexão com MongoDB antes de processar
     const mongoose = await import('mongoose');
+    console.log('🔌 Estado MongoDB:', mongoose.default.connection.readyState);
+    
     if (mongoose.default.connection.readyState !== 1) {
+      console.log('🔄 Tentando conectar MongoDB...');
       const connectDB = (await import('../config/database.js')).default;
       await connectDB();
+      console.log('✅ MongoDB conectado');
     }
     
     // Verificar se já existe algum admin
+    console.log('🔍 Verificando se já existe admin...');
     const existingAdmin = await User.findOne({ role: 'admin' });
     
     if (existingAdmin) {

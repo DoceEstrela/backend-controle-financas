@@ -255,6 +255,53 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Rota de debug para verificar variáveis de ambiente (apenas em desenvolvimento/Vercel)
+app.get('/api/debug/env', async (req, res) => {
+  const origin = req.headers.origin;
+  const isNetlifyDomain = (origin) => {
+    if (!origin) return false;
+    return typeof origin === 'string' && origin.includes('.netlify.app');
+  };
+  
+  if (origin && (
+    origin === 'http://localhost:5173' ||
+    origin === 'http://localhost:3000' ||
+    origin === process.env.FRONTEND_URL ||
+    process.env.NODE_ENV === 'development' ||
+    isNetlifyDomain(origin)
+  )) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+  
+  const mongoose = await import('mongoose');
+  const states = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting',
+  };
+  
+  res.json({
+    success: true,
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      VERCEL: process.env.VERCEL,
+      MONGODB_URI: process.env.MONGODB_URI ? 'Configurada ✅' : 'Não configurada ❌',
+      JWT_SECRET: process.env.JWT_SECRET ? `${process.env.JWT_SECRET.length} caracteres ✅` : 'Não configurada ❌',
+      ENCRYPTION_KEY: process.env.ENCRYPTION_KEY ? `${process.env.ENCRYPTION_KEY.length} caracteres ✅` : 'Não configurada ❌',
+      FRONTEND_URL: process.env.FRONTEND_URL || 'Não configurada',
+      REQUIRE_EMAIL_VERIFICATION_FOR_ADMIN: process.env.REQUIRE_EMAIL_VERIFICATION_FOR_ADMIN,
+      SMTP_HOST: process.env.SMTP_HOST || 'Não configurado',
+    },
+    mongoose: {
+      readyState: mongoose.default.connection.readyState,
+      state: states[mongoose.default.connection.readyState] || 'unknown',
+      states,
+    },
+  });
+});
+
 // Middleware de erro global
 app.use(async (err, req, res, next) => {
   // Aplicar CORS no erro também
