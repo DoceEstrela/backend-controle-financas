@@ -194,12 +194,15 @@ app.use((req, res, next) => {
 
 // Middlewares de segurança (após CORS)
 app.use(setupHelmet);
-app.use(sanitizeInput);
 
 // Proteção contra DoS - Limitar tamanho de payload
+// IMPORTANTE: express.json() deve vir ANTES de sanitizeInput para processar o body primeiro
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// Sanitização DEPOIS de processar JSON (para ter acesso ao req.body)
+app.use(sanitizeInput);
 
 // Middleware de debug (remover em produção final)
 app.use((req, res, next) => {
