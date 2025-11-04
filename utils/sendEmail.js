@@ -35,7 +35,7 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
   // Usar FRONTEND_URL se configurada, senão usar fallback baseado no ambiente
   const frontendUrl = process.env.FRONTEND_URL || 
     (process.env.VERCEL === '1' || process.env.NODE_ENV === 'production' 
-      ? 'https://controls-finance-app-v001.netlify.app' 
+      ? 'https://guileless-jalebi-f1c07b.netlify.app' 
       : 'http://localhost:5173');
   
   const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
@@ -214,7 +214,7 @@ export const sendVerificationEmail = async (email, verificationToken) => {
   // Usar FRONTEND_URL se configurada, senão usar fallback baseado no ambiente
   const frontendUrl = process.env.FRONTEND_URL || 
     (process.env.VERCEL === '1' || process.env.NODE_ENV === 'production' 
-      ? 'https://controls-finance-app-v001.netlify.app' 
+      ? 'https://guileless-jalebi-f1c07b.netlify.app' 
       : 'http://localhost:5173');
   
   const verificationUrl = `${frontendUrl}/verify-email/${verificationToken}`;

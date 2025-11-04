@@ -93,7 +93,7 @@ const allowedOrigins = [
 const isNetlifyDomain = (origin) => {
   if (!origin) return false;
   // Aceita qualquer subdomínio .netlify.app (deploys, previews, etc)
-  return origin.endsWith('.netlify.app') || origin === 'https://controls-finance-app-v001.netlify.app';
+  return origin.endsWith('.netlify.app');
 };
 
 // Log das origens permitidas (apenas em produção para debug)
