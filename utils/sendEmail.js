@@ -67,14 +67,14 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
     const transporter = createTransporter();
     
     // Configurar nome do remetente de forma mais profissional
-    const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@sistema-vendas.com';
-    const fromName = process.env.SMTP_FROM_NAME || 'Sistema de Vendas';
+    const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@financial-control.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Financial control';
     
     const mailOptions = {
       from: `"${fromName}" <${fromEmail}>`,
       replyTo: process.env.SMTP_REPLY_TO || fromEmail,
       to: email,
-      subject: 'Redefinição de Senha - Sistema de Vendas',
+      subject: 'Redefinição de Senha - Financial control',
       priority: 'high',
       // Headers para melhorar entregabilidade e evitar spam
       headers: {
@@ -93,16 +93,17 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
               body {
                 font-family: Arial, sans-serif;
                 line-height: 1.6;
-                color: #333;
+                color: #FFFFFF;
                 max-width: 600px;
                 margin: 0 auto;
                 padding: 20px;
+                background-color: #2F3136;
               }
               .container {
-                background-color: #f9f9f9;
+                background-color: #2F3136;
                 padding: 30px;
-                border-radius: 10px;
-                border: 1px solid #ddd;
+                border-radius: 4px;
+                border: 1px solid #36393F;
               }
               .header {
                 text-align: center;
@@ -111,26 +112,34 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
               .logo {
                 font-size: 24px;
                 font-weight: bold;
-                color: #3b7bff;
+                color: #FFFFFF;
               }
               .content {
-                background-color: #fff;
+                background-color: #202225;
                 padding: 25px;
-                border-radius: 8px;
+                border-radius: 4px;
                 margin-bottom: 20px;
+                border: 1px solid #36393F;
+              }
+              .content h2 {
+                color: #FFFFFF;
+              }
+              .content p {
+                color: #FFFFFF;
               }
               .button {
                 display: inline-block;
                 padding: 12px 30px;
-                background-color: #3b7bff;
-                color: #fff;
+                background-color: #1E4FA1;
+                color: #FFFFFF;
                 text-decoration: none;
-                border-radius: 5px;
+                border-radius: 4px;
                 margin: 20px 0;
-                font-weight: bold;
+                font-weight: 600;
+                border: 1px solid #36393F;
               }
               .button:hover {
-                background-color: #2d5fd1;
+                background-color: #1a3d8a;
               }
               .warning {
                 background-color: #fff3cd;
@@ -139,28 +148,37 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
                 margin: 20px 0;
                 border-radius: 4px;
               }
+              .warning strong {
+                color: #856404;
+              }
+              .warning ul {
+                color: #856404;
+              }
               .footer {
                 text-align: center;
                 margin-top: 30px;
                 padding-top: 20px;
-                border-top: 1px solid #ddd;
-                color: #666;
+                border-top: 1px solid #36393F;
+                color: #FFFFFF;
+                opacity: 0.7;
                 font-size: 12px;
               }
               .token {
-                background-color: #f5f5f5;
+                background-color: #36393F;
                 padding: 10px;
                 border-radius: 4px;
                 font-family: monospace;
                 word-break: break-all;
                 margin: 15px 0;
+                color: #FFFFFF;
+                border: 1px solid #36393F;
               }
             </style>
           </head>
           <body>
             <div class="container">
               <div class="header">
-                <div class="logo">🔐 Sistema de Vendas</div>
+                <div class="logo">Financial control</div>
               </div>
               
               <div class="content">
@@ -188,14 +206,14 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
               
               <div class="footer">
                 <p>Este é um email automático, por favor não responda.</p>
-                <p>&copy; ${new Date().getFullYear()} Sistema de Vendas. Todos os direitos reservados.</p>
+                <p>&copy; ${new Date().getFullYear()} Financial control. Todos os direitos reservados.</p>
               </div>
             </div>
           </body>
         </html>
       `,
       text: `
-        Redefinição de Senha - Sistema de Vendas
+        Redefinição de Senha - Financial control
         
         Olá,
         
@@ -260,14 +278,14 @@ export const sendVerificationEmail = async (email, verificationToken) => {
     const transporter = createTransporter();
     
     // Configurar nome do remetente de forma mais profissional
-    const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@sistema-vendas.com';
-    const fromName = process.env.SMTP_FROM_NAME || 'Sistema de Vendas';
+    const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@financial-control.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Financial control';
     
     const mailOptions = {
       from: `"${fromName}" <${fromEmail}>`,
       replyTo: process.env.SMTP_REPLY_TO || fromEmail,
       to: email,
-      subject: 'Verifique seu email - Sistema de Vendas',
+      subject: 'Verifique seu email - Financial control',
       priority: 'high',
       // Headers para melhorar entregabilidade e evitar spam
       headers: {
@@ -286,16 +304,17 @@ export const sendVerificationEmail = async (email, verificationToken) => {
               body {
                 font-family: Arial, sans-serif;
                 line-height: 1.6;
-                color: #333;
+                color: #FFFFFF;
                 max-width: 600px;
                 margin: 0 auto;
                 padding: 20px;
+                background-color: #2F3136;
               }
               .container {
-                background-color: #f9f9f9;
+                background-color: #2F3136;
                 padding: 30px;
-                border-radius: 10px;
-                border: 1px solid #ddd;
+                border-radius: 4px;
+                border: 1px solid #36393F;
               }
               .header {
                 text-align: center;
@@ -304,26 +323,34 @@ export const sendVerificationEmail = async (email, verificationToken) => {
               .logo {
                 font-size: 24px;
                 font-weight: bold;
-                color: #3b7bff;
+                color: #FFFFFF;
               }
               .content {
-                background-color: #fff;
+                background-color: #202225;
                 padding: 25px;
-                border-radius: 8px;
+                border-radius: 4px;
                 margin-bottom: 20px;
+                border: 1px solid #36393F;
+              }
+              .content h2 {
+                color: #FFFFFF;
+              }
+              .content p {
+                color: #FFFFFF;
               }
               .button {
                 display: inline-block;
                 padding: 12px 30px;
-                background-color: #3b7bff;
-                color: #fff;
+                background-color: #1E4FA1;
+                color: #FFFFFF;
                 text-decoration: none;
-                border-radius: 5px;
+                border-radius: 4px;
                 margin: 20px 0;
-                font-weight: bold;
+                font-weight: 600;
+                border: 1px solid #36393F;
               }
               .button:hover {
-                background-color: #2d5fd1;
+                background-color: #1a3d8a;
               }
               .warning {
                 background-color: #fff3cd;
@@ -332,28 +359,37 @@ export const sendVerificationEmail = async (email, verificationToken) => {
                 margin: 20px 0;
                 border-radius: 4px;
               }
+              .warning strong {
+                color: #856404;
+              }
+              .warning ul {
+                color: #856404;
+              }
               .footer {
                 text-align: center;
                 margin-top: 30px;
                 padding-top: 20px;
-                border-top: 1px solid #ddd;
-                color: #666;
+                border-top: 1px solid #36393F;
+                color: #FFFFFF;
+                opacity: 0.7;
                 font-size: 12px;
               }
               .token {
-                background-color: #f5f5f5;
+                background-color: #36393F;
                 padding: 10px;
                 border-radius: 4px;
                 font-family: monospace;
                 word-break: break-all;
                 margin: 15px 0;
+                color: #FFFFFF;
+                border: 1px solid #36393F;
               }
             </style>
           </head>
           <body>
             <div class="container">
               <div class="header">
-                <div class="logo">✉️ Sistema de Vendas</div>
+                <div class="logo">Financial control</div>
               </div>
               
               <div class="content">
@@ -381,14 +417,14 @@ export const sendVerificationEmail = async (email, verificationToken) => {
               
               <div class="footer">
                 <p>Este é um email automático, por favor não responda.</p>
-                <p>&copy; ${new Date().getFullYear()} Sistema de Vendas. Todos os direitos reservados.</p>
+                <p>&copy; ${new Date().getFullYear()} Financial control. Todos os direitos reservados.</p>
               </div>
             </div>
           </body>
         </html>
       `,
       text: `
-        Verifique seu Email - Sistema de Vendas
+        Verifique seu Email - Financial control
         
         Olá,
         
