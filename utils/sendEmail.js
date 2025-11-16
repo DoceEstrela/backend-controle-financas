@@ -89,21 +89,25 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
         <html>
           <head>
             <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
               body {
                 font-family: Arial, sans-serif;
                 line-height: 1.6;
                 color: #FFFFFF;
-                max-width: 600px;
-                margin: 0 auto;
+                margin: 0;
                 padding: 20px;
                 background-color: #2F3136;
               }
               .container {
+                max-width: 600px;
+                width: 100%;
+                margin: 0 auto;
                 background-color: #2F3136;
                 padding: 30px;
                 border-radius: 4px;
                 border: 1px solid #36393F;
+                box-sizing: border-box;
               }
               .header {
                 text-align: center;
@@ -113,6 +117,7 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
                 font-size: 24px;
                 font-weight: bold;
                 color: #FFFFFF;
+                text-align: center;
               }
               .content {
                 background-color: #202225;
@@ -123,20 +128,30 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
               }
               .content h2 {
                 color: #FFFFFF;
+                text-align: center;
+                margin-top: 0;
+                margin-bottom: 20px;
               }
               .content p {
                 color: #FFFFFF;
+                margin: 15px 0;
+                text-align: left;
+              }
+              .button-container {
+                text-align: center;
+                margin: 25px 0;
               }
               .button {
                 display: inline-block;
                 padding: 12px 30px;
                 background-color: #1E4FA1;
-                color: #FFFFFF;
+                color: #FFFFFF !important;
                 text-decoration: none;
                 border-radius: 4px;
-                margin: 20px 0;
                 font-weight: 600;
                 border: 1px solid #36393F;
+                text-align: center;
+                cursor: pointer;
               }
               .button:hover {
                 background-color: #1a3d8a;
@@ -153,6 +168,11 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
               }
               .warning ul {
                 color: #856404;
+                margin: 10px 0;
+                padding-left: 20px;
+              }
+              .warning li {
+                margin: 5px 0;
               }
               .footer {
                 text-align: center;
@@ -165,13 +185,20 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
               }
               .token {
                 background-color: #36393F;
-                padding: 10px;
+                padding: 12px;
                 border-radius: 4px;
                 font-family: monospace;
                 word-break: break-all;
                 margin: 15px 0;
-                color: #FFFFFF;
+                color: #FFFFFF !important;
                 border: 1px solid #36393F;
+                text-align: center;
+                font-size: 12px;
+                line-height: 1.5;
+              }
+              .token a {
+                color: #FFFFFF !important;
+                text-decoration: none;
               }
             </style>
           </head>
@@ -187,8 +214,8 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
                 <p>Recebemos uma solicitação para redefinir a senha da sua conta.</p>
                 <p>Clique no botão abaixo para criar uma nova senha:</p>
                 
-                <div style="text-align: center;">
-                  <a href="${resetUrl}" class="button">Redefinir Senha</a>
+                <div class="button-container">
+                  <a href="${resetUrl}" class="button" style="color: #FFFFFF !important;">Redefinir Senha</a>
                 </div>
                 
                 <p>Ou copie e cole o link abaixo no seu navegador:</p>
@@ -300,21 +327,25 @@ export const sendVerificationEmail = async (email, verificationToken) => {
         <html>
           <head>
             <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
               body {
                 font-family: Arial, sans-serif;
                 line-height: 1.6;
                 color: #FFFFFF;
-                max-width: 600px;
-                margin: 0 auto;
+                margin: 0;
                 padding: 20px;
                 background-color: #2F3136;
               }
               .container {
+                max-width: 600px;
+                width: 100%;
+                margin: 0 auto;
                 background-color: #2F3136;
                 padding: 30px;
                 border-radius: 4px;
                 border: 1px solid #36393F;
+                box-sizing: border-box;
               }
               .header {
                 text-align: center;
@@ -324,6 +355,7 @@ export const sendVerificationEmail = async (email, verificationToken) => {
                 font-size: 24px;
                 font-weight: bold;
                 color: #FFFFFF;
+                text-align: center;
               }
               .content {
                 background-color: #202225;
@@ -334,20 +366,30 @@ export const sendVerificationEmail = async (email, verificationToken) => {
               }
               .content h2 {
                 color: #FFFFFF;
+                text-align: center;
+                margin-top: 0;
+                margin-bottom: 20px;
               }
               .content p {
                 color: #FFFFFF;
+                margin: 15px 0;
+                text-align: left;
+              }
+              .button-container {
+                text-align: center;
+                margin: 25px 0;
               }
               .button {
                 display: inline-block;
                 padding: 12px 30px;
                 background-color: #1E4FA1;
-                color: #FFFFFF;
+                color: #FFFFFF !important;
                 text-decoration: none;
                 border-radius: 4px;
-                margin: 20px 0;
                 font-weight: 600;
                 border: 1px solid #36393F;
+                text-align: center;
+                cursor: pointer;
               }
               .button:hover {
                 background-color: #1a3d8a;
@@ -364,6 +406,11 @@ export const sendVerificationEmail = async (email, verificationToken) => {
               }
               .warning ul {
                 color: #856404;
+                margin: 10px 0;
+                padding-left: 20px;
+              }
+              .warning li {
+                margin: 5px 0;
               }
               .footer {
                 text-align: center;
@@ -376,13 +423,20 @@ export const sendVerificationEmail = async (email, verificationToken) => {
               }
               .token {
                 background-color: #36393F;
-                padding: 10px;
+                padding: 12px;
                 border-radius: 4px;
                 font-family: monospace;
                 word-break: break-all;
                 margin: 15px 0;
-                color: #FFFFFF;
+                color: #FFFFFF !important;
                 border: 1px solid #36393F;
+                text-align: center;
+                font-size: 12px;
+                line-height: 1.5;
+              }
+              .token a {
+                color: #FFFFFF !important;
+                text-decoration: none;
               }
             </style>
           </head>
@@ -398,8 +452,8 @@ export const sendVerificationEmail = async (email, verificationToken) => {
                 <p>Obrigado por se registrar no nosso sistema!</p>
                 <p>Clique no botão abaixo para verificar seu endereço de email:</p>
                 
-                <div style="text-align: center;">
-                  <a href="${verificationUrl}" class="button">Verificar Email</a>
+                <div class="button-container">
+                  <a href="${verificationUrl}" class="button" style="color: #FFFFFF !important;">Verificar Email</a>
                 </div>
                 
                 <p>Ou copie e cole o link abaixo no seu navegador:</p>
